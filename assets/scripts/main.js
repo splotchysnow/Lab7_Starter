@@ -68,32 +68,46 @@ async function getRecipes() {
   // EXPOSE - START (All expose numbers start with A)
   // A1. TODO - Check local storage to see if there are any recipes.
   //            If there are recipes, return them.
-  /**************************/
-  // The rest of this method will be concerned with requesting the recipes
-  // from the network
-  // A2. TODO - Create an empty array to hold the recipes that you will fetch
-  // A3. TODO - Return a new Promise. If you are unfamiliar with promises, MDN
-  //            has a great article on them. A promise takes one parameter - A
-  //            function (we call these callback functions). That function will
-  //            take two parameters - resolve, and reject. These are functions
-  //            you can call to either resolve the Promise or Reject it.
-  /**************************/
-  // A4-A11 will all be *inside* the callback function we passed to the Promise
-  // we're returning
-  /**************************/
-  // A4. TODO - Loop through each recipe in the RECIPE_URLS array constant
-  //            declared above
-  // A5. TODO - Since we are going to be dealing with asynchronous code, create
-  //            a try / catch block. A6-A9 will be in the try portion, A10-A11
-  //            will be in the catch portion.
-  // A6. TODO - For each URL in that array, fetch the URL - MDN also has a great
-  //            article on fetch(). NOTE: Fetches are ASYNCHRONOUS, meaning that
-  //            you must either use "await fetch(...)" or "fetch.then(...)". This
-  //            function is using the async keyword so we recommend "await"
-  // A7. TODO - For each fetch response, retrieve the JSON from it using .json().
-  //            NOTE: .json() is ALSO asynchronous, so you will need to use
-  //            "await" again
-  // A8. TODO - Add the new recipe to the recipes array
+
+  // check for local storage to see if there is any recipes already. store them in recipe variable.
+  let recipe = JSON.parse(localStorage.getItem('recipes'));
+
+  // A2 - Create an empty array to hold the recipes that youw will fetch:
+  let empty_array = new Array()
+
+  // A3 - Returns a new promise
+  // A4 - create a call back function we passed to the promise we are returining.
+  return new Promise(async (resolutionFunc, rejectionFunc) => {
+    //Inside the function
+    // A4 Loop thorugh each recipes in the RECIPE_URLS array constant declared above.
+    for(let i = 0; i < RECIPE_URLS.length; i++){
+      //A5: Create a try catch functions:
+      try { 
+        //A6: For each URL in array, fetch the URL.
+        const response = await fetch(RECIPE_URLS[i]);
+        //A7: For each fetch responses, retrieve the JSON file from it using .json.
+        const jsonFile = await response.json();
+        
+        //A8: Add the new recipe to the recipe array:
+        empty_array.push(jsonFile);
+        // This should be where I finished retreieving all the recipes? ?.
+        if(empty_array.length == RECIPE_URLS.length){
+          // if the recipes are all retrieved. save recipe to storage using functions.
+          saveRecipesToStorage(empty_array);
+          //FIX: const resolvedPromises = await Promise.all(recipe);
+          //returns emtpy array to promise's resolutions.
+          resolutionFunc(empty_array);
+        }
+        
+      } catch (error) {
+        //Log any error from catch using console.error
+        console.error(error);
+        //pass any error to the promises's reject() function:
+        // Promise.reject(error);
+        rejectionFunc(error);
+      }
+    }
+  });
   // A9. TODO - Check to see if you have finished retrieving all of the recipes,
   //            if you have, then save the recipes to storage using the function
   //            we have provided. Then, pass the recipes array to the Promise's
