@@ -65,55 +65,42 @@ function initializeServiceWorker() {
  * @returns {Array<Object>} An array of recipes found in localStorage
  */
 async function getRecipes() {
-  // EXPOSE - START (All expose numbers start with A)
-  // A1. TODO - Check local storage to see if there are any recipes.
-  //            If there are recipes, return them.
-
   // check for local storage to see if there is any recipes already. store them in recipe variable.
   let recipe = JSON.parse(localStorage.getItem('recipes'));
-
-  // A2 - Create an empty array to hold the recipes that youw will fetch:
+  //Empty array to hold all the recipes from the URL Array
   let empty_array = new Array()
 
-  // A3 - Returns a new promise
-  // A4 - create a call back function we passed to the promise we are returining.
+  // Created a promise with a resolution Function and a rejection function, returns that when the procesdure is completed.
   return new Promise(async (resolutionFunc, rejectionFunc) => {
-    //Inside the function
-    // A4 Loop thorugh each recipes in the RECIPE_URLS array constant declared above.
+    //Create a for loop that loops through the recipe array:
     for(let i = 0; i < RECIPE_URLS.length; i++){
-      //A5: Create a try catch functions:
+      //Try to grab the recipe, if it dosn't work pass the error and show the errors.
       try { 
-        //A6: For each URL in array, fetch the URL.
+        //Grab a response form the fetched URL:
         const response = await fetch(RECIPE_URLS[i]);
-        //A7: For each fetch responses, retrieve the JSON file from it using .json.
+        //Store the response as a json file in the json file variable.
         const jsonFile = await response.json();
-        
-        //A8: Add the new recipe to the recipe array:
+        //Push the json file items into the empty array:
         empty_array.push(jsonFile);
-        // This should be where I finished retreieving all the recipes? ?.
+
+
+        //Checks if all the URL is completed.
         if(empty_array.length == RECIPE_URLS.length){
-          // if the recipes are all retrieved. save recipe to storage using functions.
+          //Store the recipe into the empty ARRAY
           saveRecipesToStorage(empty_array);
-          //FIX: const resolvedPromises = await Promise.all(recipe);
-          //returns emtpy array to promise's resolutions.
+          //Resolve the promise with the empty_array
           resolutionFunc(empty_array);
+          return recipe;
         }
         
       } catch (error) {
-        //Log any error from catch using console.error
+        //Returns the error into the console and then rejects the promise with the error.
         console.error(error);
-        //pass any error to the promises's reject() function:
-        // Promise.reject(error);
         rejectionFunc(error);
+        return recipe;
       }
     }
   });
-  // A9. TODO - Check to see if you have finished retrieving all of the recipes,
-  //            if you have, then save the recipes to storage using the function
-  //            we have provided. Then, pass the recipes array to the Promise's
-  //            resolve() method.
-  // A10. TODO - Log any errors from catch using console.error
-  // A11. TODO - Pass any errors to the Promise's reject() function
 }
 
 /**
